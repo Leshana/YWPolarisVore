@@ -157,6 +157,66 @@ You can set verify to TRUE if you want send() to sleep until the client has the 
 /datum/asset/simple/send(client)
 	send_asset_list(client,assets,verify)
 
+//
+// iconsheet Assets - For making lots of icon states available at once without sending a thousand tiny files.
+//
+/datum/asset/iconsheet
+	var/name // Name of the iconsheet. Asset will be named after this.
+	var/verify = FALSE
+	var/list/assets = list() // css_class_prefix -> icon_file.dmi
+
+/datum/asset/iconsheet/register(var/list/sprites)
+	if (!name)
+		CRASH("iconsheet [type] cannot register without a name")
+	if (!islist(sprites))
+		CRASH("iconsheet [type] cannot register without a sprites list")
+
+	var/res_name = "spritesheet_[name].css"
+	var/fname = "data/spritesheets/[res_name]"
+	fdel(fname)
+	text2file(generate_css(sprites), fname)
+	register_asset(res_name, fcopy_rsc(fname))
+	fdel(fname)
+
+/datum/asset/iconsheet/send(client/C)
+	if (!name)
+		return
+	send_asset_list(C, list("spritesheet_[name].css"), verify)
+
+/datum/asset/iconsheet/proc/generate_css(var/list/sprites)
+	var/list/out = list(".[name]{display:inline-block;}")
+	for(var/sprite_id in sprites)
+		var/icon/I = sprites[sprite_id]
+		var/data_url = "'data:image/png;base64,[icon2base64(I)]'"
+		out += ".[name].[sprite_id]{width:[I.Width()]px;height:[I.Height()]px;background-image:url([data_url]);}"
+	return out.Join("\n")
+
+/datum/asset/iconsheet/proc/build_sprite_list(icon/I, list/directions, prefix = null)
+	if (length(prefix))
+		prefix = "[prefix]-"
+
+	if (!directions)
+		directions = list(SOUTH)
+
+	var/sprites = list()
+	for (var/icon_state_name in icon_states(I))
+		for (var/direction in directions)
+			var/suffix = (directions.len > 1) ? "-[dir2text(direction)]" : ""
+			var/sprite_name = "[prefix][icon_state_name][suffix]"
+			var/icon/sprite = icon(I, icon_state=icon_state_name, dir=direction, frame=1, moving=FALSE)
+			if (!sprite || !length(icon_states(sprite)))  // that direction or state doesn't exist
+				continue
+			sprites[sprite_name] = sprite
+	return sprites
+
+// Get HTML link tag for including the iconsheet css file.
+/datum/asset/iconsheet/proc/css_tag()
+	return "<link rel='stylesheet' href='spritesheet_[name].css' />"
+
+// get HTML tag for showing an icon
+/datum/asset/iconsheet/proc/icon_tag(icon_state, dir)
+	return "<span class='[name] [icon_state]-[dir2text(dir)]'></span>"
+
 
 //DEFINITIONS FOR ASSET DATUMS START HERE.
 /datum/asset/simple/pda
