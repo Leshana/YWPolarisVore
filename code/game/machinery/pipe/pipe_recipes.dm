@@ -72,11 +72,11 @@ var/global/list/all_pipe_recipes = null
 // New method of handling pipe construction.  Instead of numeric constants and a giant switch statement of doom
 // 	every pipe type has a datum instance which describes its name, placement rules and construction method, dispensing etc.
 // The advantages are obvious, mostly in simplifying the code of the dispenser, and the ability to add new pipes without hassle.
+// icon_state and icon_state_m must be from among those available from the dmi files included in /datum/asset/iconsheet/pipes
 //
 /datum/pipe_recipe
 	var/name = "Abstract Pipe (fixme)"		// Recipe name
-	var/pipe_type							// The type PATH of what actual pipe the fitting becomes, used by RCD to print the pipe.
-	var/icon = 'icons/obj/pipe-item.dmi'	// This tells the RPD which icon file to look for preview images in.
+	var/pipe_type							// Specifies what to build.  Either a type PATH or unique ID depending on subtype.
 	var/icon_state							// This tells the RPD what kind of pipe icon to render for the preview.
 	var/icon_state_m						// This stores the mirrored version of the regular state (if available).
 	var/dirtype								// If using an RPD, this tells more about what previews to show.
@@ -96,6 +96,7 @@ var/global/list/all_pipe_recipes = null
 //
 /datum/pipe_recipe/pipe
 	var/obj/item/pipe/construction_type 		// The type PATH to the type of pipe fitting object the recipe makes.
+	// pipe_type is the PATH of what actual pipe the fitting becomes.
 
 /datum/pipe_recipe/pipe/New(var/label, var/obj/machinery/atmospherics/path, var/colorable=FALSE)
 	name = label
@@ -137,7 +138,8 @@ var/global/list/all_pipe_recipes = null
 // Subtype for disposal pipes
 //
 /datum/pipe_recipe/disposal
-	icon = 'icons/obj/pipes/disposal.dmi'
+	// pipe_type is one of the DISPOSAL_PIPE_ ptype constants.
+	// subtype is one of the DISPOSAL_SORT_ constants.
 
 /datum/pipe_recipe/disposal/New(var/label, var/path, var/state, dt=PIPE_DIRECTIONAL, var/state_mirror=0, var/sort=0)
 	name = label

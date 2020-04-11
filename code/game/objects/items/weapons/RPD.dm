@@ -29,6 +29,7 @@
 	var/datum/pipe_recipe/recipe
 	var/static/datum/pipe_recipe/first_atmos
 	var/static/datum/pipe_recipe/first_disposal
+	var/static/datum/asset/iconsheet/pipes/icon_assets
 
 /obj/item/weapon/pipe_dispenser/New()
 	. = ..()
@@ -61,60 +62,58 @@
 
 /obj/item/weapon/pipe_dispenser/interact(mob/user)
 	SetupPipes()
+	if(!icon_assets)
+		icon_assets = get_asset_datum(/datum/asset/iconsheet/pipes)
+	icon_assets.send(user)
+
 	var/list/lines = list()
 	if(mode >= ATMOS_MODE)
 		lines += "<div class=\"block\"><h3>Direction:</h3><div class=\"item\">"
-		var/icon/preview = null
-		var/icon/previewm = null
-		if(recipe.icon && recipe.icon_state)
-			preview = new /icon(recipe.icon, recipe.icon_state)
-			if (recipe.icon_state_m)
-				previewm = new /icon(recipe.icon, recipe.icon_state_m)
 		switch(recipe.dirtype)
 
 			if(PIPE_STRAIGHT) // Straight, N-S, W-E
-				lines += render_dir_img(preview,user,NORTH,"Vertical","&#8597;")
-				lines += render_dir_img(preview,user,EAST,"Horizontal","&harr;")
+				lines += render_dir_img(recipe.icon_state,user,NORTH,"Vertical","&#8597;")
+				lines += render_dir_img(recipe.icon_state,user,EAST,"Horizontal","&harr;")
 
 			if(PIPE_BENDABLE) // Bent, N-W, N-E etc
-				lines += render_dir_img(preview,user,NORTH,"Vertical","&#8597;")
-				lines += render_dir_img(preview,user,EAST,"Horizontal","&harr;")
+				lines += render_dir_img(recipe.icon_state,user,NORTH,"Vertical","&#8597;")
+				lines += render_dir_img(recipe.icon_state,user,EAST,"Horizontal","&harr;")
 				lines += "<br />"
-				lines += render_dir_img(preview,user,NORTHWEST,"West to North","&#9565;")
-				lines += render_dir_img(preview,user,NORTHEAST,"North to East","&#9562;")
+				lines += render_dir_img(recipe.icon_state,user,NORTHWEST,"West to North","&#9565;")
+				lines += render_dir_img(recipe.icon_state,user,NORTHEAST,"North to East","&#9562;")
 				lines += "<br />"
-				lines += render_dir_img(preview,user,SOUTHWEST,"South to West","&#9559;")
-				lines += render_dir_img(preview,user,SOUTHEAST,"East to South","&#9556;")
+				lines += render_dir_img(recipe.icon_state,user,SOUTHWEST,"South to West","&#9559;")
+				lines += render_dir_img(recipe.icon_state,user,SOUTHEAST,"East to South","&#9556;")
 
 			if(PIPE_TRINARY) // Manifold
-				lines += render_dir_img(preview,user,NORTH,"West South East","&#9574;")
-				lines += render_dir_img(preview,user,EAST,"North West South","&#9571;")
+				lines += render_dir_img(recipe.icon_state,user,NORTH,"West South East","&#9574;")
+				lines += render_dir_img(recipe.icon_state,user,EAST,"North West South","&#9571;")
 				lines += "<br />"
-				lines += render_dir_img(preview,user,SOUTH,"East North West","&#9577;")
-				lines += render_dir_img(preview,user,WEST,"South East North","&#9568;")
+				lines += render_dir_img(recipe.icon_state,user,SOUTH,"East North West","&#9577;")
+				lines += render_dir_img(recipe.icon_state,user,WEST,"South East North","&#9568;")
 
 			if(PIPE_TRIN_M) // Mirrored ones
 			//each mirror icon is 45 anticlockwise from it's real direction
-				lines += render_dir_img(preview,user,NORTH,"West South East","&#9574;")
-				lines += render_dir_img(preview,user,EAST,"North West South","&#9571;")
+				lines += render_dir_img(recipe.icon_state,user,NORTH,"West South East","&#9574;")
+				lines += render_dir_img(recipe.icon_state,user,EAST,"North West South","&#9571;")
 				lines += "<br />"
-				lines += render_dir_img(preview,user,SOUTH,"East North West","&#9577;")
-				lines += render_dir_img(preview,user,WEST,"South East North","&#9568;")
+				lines += render_dir_img(recipe.icon_state,user,SOUTH,"East North West","&#9577;")
+				lines += render_dir_img(recipe.icon_state,user,WEST,"South East North","&#9568;")
 				lines += "<br />"
-				lines += render_dir_img(previewm,user,SOUTH,"West South East","&#9574;", 1)
-				lines += render_dir_img(previewm,user,EAST,"North West South","&#9571;", 1)
+				lines += render_dir_img(recipe.icon_state_m,user,SOUTH,"West South East","&#9574;", 1)
+				lines += render_dir_img(recipe.icon_state_m,user,EAST,"North West South","&#9571;", 1)
 				lines += "<br />"
-				lines += render_dir_img(previewm,user,NORTH,"East North West","&#9577;", 1)
-				lines += render_dir_img(previewm,user,WEST,"South East North","&#9568;", 1)
+				lines += render_dir_img(recipe.icon_state_m,user,NORTH,"East North West","&#9577;", 1)
+				lines += render_dir_img(recipe.icon_state_m,user,WEST,"South East North","&#9568;", 1)
 
 			if(PIPE_DIRECTIONAL) // Stuff with four directions - includes pumps etc.
-				lines += render_dir_img(preview,user,NORTH,"North","&uarr;")
-				lines += render_dir_img(preview,user,EAST,"East","&rarr;")
-				lines += render_dir_img(preview,user,SOUTH,"South","&darr;")
-				lines += render_dir_img(preview,user,WEST,"West","&larr;")
+				lines += render_dir_img(recipe.icon_state,user,NORTH,"North","&uarr;")
+				lines += render_dir_img(recipe.icon_state,user,EAST,"East","&rarr;")
+				lines += render_dir_img(recipe.icon_state,user,SOUTH,"South","&darr;")
+				lines += render_dir_img(recipe.icon_state,user,WEST,"West","&larr;")
 
 			if(PIPE_ONEDIR) // Single icon_state (eg 4-way manifolds)
-				lines += render_dir_img(preview,user,SOUTH,"Pipe","&#8597;")
+				lines += render_dir_img(recipe.icon_state,user,SOUTH,"Pipe","&#8597;")
 		lines += "</div></div>"
 
 	if(mode == ATMOS_MODE || mode == PAINT_MODE)
@@ -169,6 +168,7 @@
 	var/dat = lines.Join()
 	var/datum/browser/popup = new(user, "rpd", name, 300, 800, src)
 	popup.set_content("<TT>[dat]</TT>")
+	popup.add_head_content(icon_assets.css_tag())
 	popup.open()
 
 /obj/item/weapon/pipe_dispenser/Topic(href,href_list)
@@ -329,16 +329,16 @@
 	if(!resolved && tool && target)
 		tool.afterattack(target,user,1)
 
-/obj/item/weapon/pipe_dispenser/proc/render_dir_img(preview,user,_dir,title,noimg,flipped=0)
+/obj/item/weapon/pipe_dispenser/proc/render_dir_img(icon_state,user,_dir,title,noimg,flipped=0)
 	var/dirtext = dir2text(_dir)
-	var/selected = " style=\"height:34px;width:34px;display:inline-block\""
+	var/attrs = " style=\"height:34px;width:34px;display:inline-block\""
 	if(_dir == p_dir && flipped == p_flipped)
-		selected += " class=\"linkOn\""
-	if(preview)
-		user << browse_rsc(new /icon(preview, dir=_dir), "[dirtext][flipped ? "m" : ""].png")
-		return "<a href=\"?src=\ref[src];dir=[dirtext];flipped=[flipped]\" title=\"[title]\"[selected]\"><img src=\"[dirtext][flipped ? "m" : ""].png\" /></a>"
+		attrs += " class=\"linkOn\""
+	if(icon_state)
+		var/img_tag = icon_assets.icon_tag(icon_state, _dir)
+		return "<a href=\"?src=\ref[src];dir=[dirtext];flipped=[flipped]\" title=\"[title]\"[attrs]>[img_tag]</a>"
 	else
-		return "<a href=\"?src=\ref[src];dir=[dirtext];flipped=[flipped]\" title=\"[title]\"[selected]\">[noimg]</a>"
+		return "<a href=\"?src=\ref[src];dir=[dirtext];flipped=[flipped]\" title=\"[title]\"[attrs]>[noimg]</a>"
 
 
 #undef PAINT_MODE
